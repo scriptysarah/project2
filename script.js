@@ -7,12 +7,11 @@ const predictBtn = document.getElementById('predict-btn');
 const dropArea = document.querySelector('.container');
 const statusMessage = document.getElementById('status-message');
 
-// 2. Updated: Database variable (Now empty, will be filled by JSON)
+// 2. Database variable (Starts empty, populated via JSON)
 let calorieDatabase = {};
-
 let model;
 
-// 3. Updated: Load AI Model AND JSON Data
+// 3. Load AI Model AND JSON Data
 async function initializeApp() {
     console.log("Loading AI and Database...");
     try {
@@ -20,18 +19,21 @@ async function initializeApp() {
         model = await mobilenet.load();
         
         // Load the 200+ foods from your JSON file
+        // IMPORTANT: Ensure foodData.json is in the same folder as index.html
         const response = await fetch('foodData.json');
+        if (!response.ok) throw new Error("Could not load JSON file");
+        
         calorieDatabase = await response.json();
         
-        console.log("Model and JSON Ready!");
+        console.log("AI Model and JSON Database Ready!");
     } catch (error) {
         console.error("Initialization Error:", error);
-        // Fail-safe: A few items in case the JSON fails to load
-        calorieDatabase = { "ramen": "436 kcal", "beef": "250 kcal" };
+        // Fail-safe: Essential items if the JSON fails to load
+        calorieDatabase = { "ramen": "436 kcal", "pizza": "266 kcal", "beef": "250 kcal" };
     }
 }
 
-// Start the initialization
+// Execute initialization on page load
 initializeApp();
 
 // --- DRAG AND DROP LOGIC ---
@@ -54,9 +56,7 @@ function preventDefaults(e) {
 });
 
 dropArea.addEventListener('drop', (e) => {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    handleFiles(files[0]);
+    handleFiles(e.dataTransfer.files[0]);
 }, false);
 
 imageUpload.addEventListener('change', (e) => {
@@ -88,46 +88,51 @@ predictBtn.addEventListener('click', async () => {
         return;
     }
 
+    // Show scanning status
     statusMessage.classList.remove('hidden'); 
     foodName.innerText = "Analyzing...";
     calorieCount.innerText = "Searching...";
 
     try {
-        // Slight timeout to ensure UI updates scanning status
+        // Timeout ensures the UI "Scanning..." message renders before heavy AI processing
         await new Promise(resolve => setTimeout(resolve, 100)); 
         
         const predictions = await model.classify(imagePreview);
         
-        // Process results
-        let fullAiResult = predictions.map(p => p.className.toLowerCase()).join(' ');
-        let topGuess = predictions[0].className.split(',')[0];
-        
-        foodName.innerText = topGuess;
-
-        // --- UPDATED SEARCH LOGIC ---
-        let found = false;
-
         // 1. Get the AI's guesses and make them lowercase
         let aiLabels = predictions.map(p => p.className.toLowerCase());
-        let fullAiText = aiLabels.join(' '); // e.g. "pizza, pepperoni pizza, dish"
+        let fullAiText = aiLabels.join(' '); 
 
+        // Set top display guess, filtering out 'plate'
+        let topGuess = predictions[0].className.split(',')[0];
+        if (topGuess.toLowerCase().includes("plate") && predictions[1]) {
+            topGuess = predictions[1].className.split(',')[0];
+        }
+        foodName.innerText = topGuess;
+
+        // 2. Smart Search Logic
+        let found = false;
         for (let key in calorieDatabase) {
-            let lowerKey = key.toLowerCase(); // Ensure our database key is lowercase
+            let lowerKey = key.toLowerCase(); 
             
-            // 2. The "Double Check":
-            // Check if the AI text contains our key OR if our key is part of the AI text
-            if (fullAiText.includes(lowerKey) || lowerKey.includes(aiLabels[0])) {
+            // Check if the AI's full results contain the food keyword
+            if (fullAiText.includes(lowerKey)) {
                 calorieCount.innerText = calorieDatabase[key] + " (est. per 100g)";
                 found = true;
                 break; 
             }
         }
+
         if (!found) {
             calorieCount.innerText = "Food detected, but calories unknown.";
         }
+
     } catch (err) {
         console.error("Prediction error:", err);
+        foodName.innerText = "Error!";
         calorieCount.innerText = "Error during prediction.";
+    } finally {
+        statusMessage.classList.add('hidden');
     }
 });
 
