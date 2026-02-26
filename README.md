@@ -1,48 +1,40 @@
-🍎 Food AI: Calories Estimator
-📝 Project Overview
-This project is an AI-powered web application developed for the 2nd Term ICT Project (2025-2026) at Al Kamal American International School. It allows users to upload or drag-and-drop images of food to receive an immediate estimation of caloric content using real-time Computer Vision.
+# 🍎 Food AI: Calories Estimator
 
-🚀 Features
-AI Image Classification: Uses a Neural Network to identify food items.
+This project is an AI-powered web application developed to detect calories from food. It allows users to upload or drag-and-drop images of food to receive an immediate estimation of caloric content using real-time Computer Vision.
 
-Real-time Estimation: Instantly maps identified food to a caloric database.
+##  Features
 
-Modern UI/UX: Includes drag-and-drop functionality and a responsive design.
+* **AI Image Classification:** Uses a Neural Network to identify food items.
 
-Local Processing: Runs entirely in the browser for speed and privacy.
+* **Real-time Estimation:** Instantly maps identified food to a caloric database.
 
-🛠️ Tools & Technologies Used
-As required by the project guidelines, this application was built using:
+* **Modern UI/UX:** Includes drag-and-drop functionality and a responsive design.
 
-JavaScript (ES6+): The primary programming language for logic and AI integration.
+* **Local Processing:** Runs entirely in the browser for speed and privacy.
 
-TensorFlow.js: The library used to run machine learning models in the browser.
 
-MobileNet Model: A pre-trained Deep Learning model for high-accuracy image classification.
+## Tools/ Languages used
 
-HTML5 & CSS3: For the structural layout and professional styling.
+**JavaScript (ES6+):** The primary programming language for logic and AI integration.
 
-JSON: Used as a structured database for food caloric data.
+**TensorFlow.js:** The library used to run machine learning models in the browser.
 
-🧠 How the AI Model Works
-Consistent with the requirement to explain the AI model:
+**MobileNet Model:** A pre-trained Deep Learning model for high-accuracy image classification.
 
-Input: The user provides an image via upload or drag-and-drop.
+**HTML5 & CSS3:** For the structural layout and professional styling.
 
-Processing: The MobileNet model (a Convolutional Neural Network) analyzes the image features—such as shapes, textures, and colors—to predict the contents.
+**JSON:** Used as a structured database for food caloric data.
 
-Classification: The model generates a list of "labels" (guesses) with probability scores.
 
-Data Mapping: The JavaScript logic performs a "Smart Search" across these labels to find a match in the foodData.json database.
+## How the Model Works
 
-Output: If a match is found, the application displays the food name and its estimated calories per 100g.
+1. **Input:** The user provides an image via upload or drag-and-drop.
 
-📂 File Structure
-index.html - The core structure of the web application.
+2. **Processing:** The MobileNet model (a Convolutional Neural Network) analyzes the image features(such as shapes, textures, and colors)to predict the contents.
 
-style.css - Custom styling for a professional "Innovation Team" look.
+3. **Classification:** The model generates a list of "labels" (guesses) with probability scores.
 
-script.js - The "brain" of the app handling AI logic and file processing.
+4. **Data Mapping:** The JavaScript logic performs a "Smart Search" across these labels to find a match in the foodData.json database.
 
-foodData.json - A database containing caloric information for over 200 food items.
+5. **Output:** If a match is found, the application displays the food name and its estimated calories per 100g.
 
