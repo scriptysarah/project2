@@ -23,7 +23,13 @@ async function initializeApp() {
         const response = await fetch('foodData.json');
         if (!response.ok) throw new Error("Could not load JSON file");
         
-        calorieDatabase = await response.json();
+        const data = await response.json();
+        // some JSON authors wrap the object in an array; we only need the first element
+        if (Array.isArray(data) && data.length > 0) {
+            calorieDatabase = data[0];
+        } else {
+            calorieDatabase = data;
+        }
         
         console.log("AI Model and JSON Database Ready!");
     } catch (error) {
@@ -88,35 +94,33 @@ predictBtn.addEventListener('click', async () => {
         return;
     }
 
-    // Show scanning status
     statusMessage.classList.remove('hidden'); 
     foodName.innerText = "Analyzing...";
     calorieCount.innerText = "Searching...";
 
     try {
-        // Timeout ensures the UI "Scanning..." message renders before heavy AI processing
         await new Promise(resolve => setTimeout(resolve, 100)); 
         
         const predictions = await model.classify(imagePreview);
         
-        // 1. Get the AI's guesses and make them lowercase
-        let aiLabels = predictions.map(p => p.className.toLowerCase());
-        let fullAiText = aiLabels.join(' '); 
+        // 1. Convert ALL AI guesses to one long lowercase string
+        // This helps if "pizza" is the 2nd or 3rd guess instead of the 1st
+        let allSeenLabels = predictions.map(p => p.className.toLowerCase()).join(' ');
 
-        // Set top display guess, filtering out 'plate'
+        // 2. Determine the best display name (Skip 'plate' or 'dish' if possible)
         let topGuess = predictions[0].className.split(',')[0];
-        if (topGuess.toLowerCase().includes("plate") && predictions[1]) {
+        if ((topGuess.toLowerCase().includes("plate") || topGuess.toLowerCase().includes("dish")) && predictions[1]) {
             topGuess = predictions[1].className.split(',')[0];
         }
         foodName.innerText = topGuess;
 
-        // 2. Smart Search Logic
+        // 3. SMART SEARCH MATCHING
         let found = false;
         for (let key in calorieDatabase) {
             let lowerKey = key.toLowerCase(); 
             
-            // Check if the AI's full results contain the food keyword
-            if (fullAiText.includes(lowerKey)) {
+            // If our keyword (like 'pizza') is found anywhere in the AI's guesses
+            if (allSeenLabels.includes(lowerKey)) {
                 calorieCount.innerText = calorieDatabase[key] + " (est. per 100g)";
                 found = true;
                 break; 
@@ -130,7 +134,7 @@ predictBtn.addEventListener('click', async () => {
     } catch (err) {
         console.error("Prediction error:", err);
         foodName.innerText = "Error!";
-        calorieCount.innerText = "Error during prediction.";
+        calorieCount.innerText = "Check your internet/JSON file.";
     } finally {
         statusMessage.classList.add('hidden');
     }
