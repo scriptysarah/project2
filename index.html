@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Calorie Estimator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🍎 Food AI</h1>
+        <p>Innovation Team Project: Calories Estimator</p>
+    </header>
+    
+    <div class="upload-section">
+        <label for="imageUpload" class="custom-file-upload">
+            Choose Food Image
+        </label>
+        <input type="file" id="imageUpload" accept="image/*">
+    </div>
+
+    <div class="display-area">
+        <img id="image-preview" src="#" alt="Preview" style="display:none;">
+        <div id="status-message" class="hidden">Scanning...</div>
+    </div>
+    
+    <div class="result-card">
+        <h3>Analysis Results</h3>
+        <p id="food-name">Detected: <span>---</span></p>
+        <p id="calorie-count">Est. Calories: <span>---</span></p>
+    </div>
+    
+    <button id="predict-btn">Analyze Food</button>
+    <button id="reset-btn" onclick="resetApp()" style="background: #636e72; margin-top: 10px;">Clear All</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+<script src="script.js"></script>
+</body>
+</html>
