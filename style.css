@@ -22,7 +22,7 @@ body {
     text-align: center;
 }
 
-/* Drag and Drop Styling */
+/* Drag and Drop  */
 .container.dragover {
     border: 3px dashed #00b894;
     background-color: #f0fff4;

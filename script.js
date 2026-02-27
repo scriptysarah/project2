@@ -7,24 +7,21 @@ const predictBtn = document.getElementById('predict-btn');
 const dropArea = document.querySelector('.container');
 const statusMessage = document.getElementById('status-message');
 
-// 2. Database variable (Starts empty, populated via JSON)
+// 2. Database variable
 let calorieDatabase = {};
 let model;
 
-// 3. Load AI Model AND JSON Data
+//  Loads AI Model AND JSON Data
 async function initializeApp() {
     console.log("Loading AI and Database...");
     try {
         // Load the TensorFlow MobileNet model
         model = await mobilenet.load();
         
-        // Load the 200+ foods from your JSON file
-        // IMPORTANT: Ensure foodData.json is in the same folder as index.html
         const response = await fetch('foodData.json');
         if (!response.ok) throw new Error("Could not load JSON file");
         
         const data = await response.json();
-        // some JSON authors wrap the object in an array; we only need the first element
         if (Array.isArray(data) && data.length > 0) {
             calorieDatabase = data[0];
         } else {
@@ -34,15 +31,13 @@ async function initializeApp() {
         console.log("AI Model and JSON Database Ready!");
     } catch (error) {
         console.error("Initialization Error:", error);
-        // Fail-safe: Essential items if the JSON fails to load
-        calorieDatabase = { "ramen": "436 kcal", "pizza": "266 kcal", "beef": "250 kcal" };
+         calorieDatabase = { "ramen": "436 kcal", "pizza": "266 kcal", "beef": "250 kcal" };
     }
 }
 
-// Execute initialization on page load
 initializeApp();
 
-// --- DRAG AND DROP LOGIC ---
+//  DRAG AND DROP 
 
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropArea.addEventListener(eventName, preventDefaults, false);
@@ -86,7 +81,7 @@ function handleFiles(file) {
     }
 }
 
-// --- PREDICTION LOGIC ---
+//  PREDICTION 
 
 predictBtn.addEventListener('click', async () => {
     if (!imagePreview.src || imagePreview.src.includes('#')) {
@@ -103,23 +98,18 @@ predictBtn.addEventListener('click', async () => {
         
         const predictions = await model.classify(imagePreview);
         
-        // 1. Convert ALL AI guesses to one long lowercase string
-        // This helps if "pizza" is the 2nd or 3rd guess instead of the 1st
+        // Converts guesses to one long lowercase string
         let allSeenLabels = predictions.map(p => p.className.toLowerCase()).join(' ');
-
-        // 2. Determine the best display name (Skip 'plate' or 'dish' if possible)
         let topGuess = predictions[0].className.split(',')[0];
         if ((topGuess.toLowerCase().includes("plate") || topGuess.toLowerCase().includes("dish")) && predictions[1]) {
             topGuess = predictions[1].className.split(',')[0];
         }
         foodName.innerText = topGuess;
 
-        // 3. SMART SEARCH MATCHING
         let found = false;
         for (let key in calorieDatabase) {
             let lowerKey = key.toLowerCase(); 
             
-            // If our keyword (like 'pizza') is found anywhere in the AI's guesses
             if (allSeenLabels.includes(lowerKey)) {
                 calorieCount.innerText = calorieDatabase[key] + " (est. per 100g)";
                 found = true;
@@ -140,7 +130,7 @@ predictBtn.addEventListener('click', async () => {
     }
 });
 
-// --- RESET LOGIC ---
+//  RESET 
 
 function resetApp() {
     imageUpload.value = "";
